@@ -1,125 +1,154 @@
 
+/*
+MIT License
+
+Copyright(c) 2020 Risto Lankinen
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this softwareand associated documentation files(the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions :
+
+The above copyright noticeand this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #pragma once
 
 #include <cmath>
 
 /***********************************************************************************************************************
-*** RegressionAccumulator -- rewindable two variable linear regression
+*** RegressionAccumulator -- rewindable two variable linear regression and correlation
 ***********************************************************************************************************************/
 
-class RegressionAccumulator final
+template <typename T = double> struct RegressionAccumulator final
 {
-    size_t count;
-    double mean_x;
-    double mean_y;
-    double variance_x;
-    double covariance;
-
-public:
-    RegressionAccumulator() noexcept : count(0), mean_x(0), mean_y(0), variance_x(0), covariance(0)
+    RegressionAccumulator() noexcept : n(0), mean_x(0), mean_y(0), variance_x(0), variance_y(0), covariance(0)
     {
     }
 
-    RegressionAccumulator(const RegressionAccumulator& r) noexcept : count(r.count), mean_x(r.mean_x), mean_y(r.mean_y), variance_x(r.variance_x), covariance(r.covariance)
+    RegressionAccumulator(const RegressionAccumulator& r) noexcept : n(r.n), mean_x(r.mean_x), mean_y(r.mean_y), variance_x(r.variance_x), variance_y(r.variance_y), covariance(r.covariance)
     {
     }
 
     RegressionAccumulator& operator=(const RegressionAccumulator& r) noexcept
     {
-        count = r.count;
+        n = r.n;
         mean_x = r.mean_x;
         mean_y = r.mean_y;
         variance_x = r.variance_x;
+        variance_y = r.variance_y;
         covariance = r.covariance;
         return *this;
     }
 
     RegressionAccumulator& clear() noexcept
     {
-        count = 0;
+        n = 0;
         mean_x = 0;
         mean_y = 0;
         variance_x = 0;
+        variance_y = 0;
         covariance = 0;
         return *this;
     }
 
-    RegressionAccumulator& insert(double x, double y) noexcept
+    RegressionAccumulator& insert(T const& x, T const& y) noexcept
     {
-        double dx = x - mean_x;
-        double dy = y - mean_y;
-        ++count;
-        mean_x += dx / count;
-        mean_y += dy / count;
-        variance_x += dx * (x - mean_x);
-        covariance += dx * (y - mean_y);
+        ++n;
+        auto dx = x - mean_x;
+        auto dy = y - mean_y;
+        mean_x = mean_x + dx / n;
+        mean_y = mean_y + dy / n;
+        variance_x = variance_x + dx * (x - mean_x);
+        variance_y = variance_y + dy * (y - mean_y);
+        covariance = covariance + dx * (y - mean_y);
         return *this;
     }
 
-    RegressionAccumulator& remove(double x, double y) noexcept
+    RegressionAccumulator& remove(T const& x, T const& y) noexcept
     {
-        if (count > 1)
+        if (n > 1)
         {
-            double dx = x - mean_x;
-            double dy = y - mean_y;
-            --count;
-            mean_x -= dx / count;
-            mean_y -= dy / count;
-            variance_x -= dx * (x - mean_x);
-            covariance -= dx * (y - mean_y);
+            --n;
+            auto dx = x - mean_x;
+            auto dy = y - mean_y;
+            mean_x = mean_x - dx / n;
+            mean_y = mean_y - dy / n;
+            variance_x = variance_x - dx * (x - mean_x);
+            variance_y = variance_y - dy * (y - mean_y);
+            covariance = covariance - dx * (y - mean_y);
         }
         else clear();
         return *this;
     }
 
-    double bias() const noexcept
+    T bias() const noexcept
     {
-        return mean_y - mean_x * gain();
+        return mean_y - mean_x * covariance / variance_x;
     }
 
-    double gain() const noexcept
+    T correlation() const noexcept
     {
-        return variance_x > 0 ? covariance / variance_x : 0;
+        return covariance / sqrt(variance_x * variance_y);
+    }
+
+    T gain() const noexcept
+    {
+        return covariance / variance_x;
+    }
+
+    T operator()(T const& x) const noexcept
+    {
+        return (x - mean_x) * covariance / variance_x + mean_y;
+    }
+
+    T inv(T const& y) const noexcept
+    {
+        return (y - mean_y) * variance_x / covariance + mean_x;
     }
 
     int samples() const noexcept
     {
-        return count;
+        return n;
     }
 
-    double operator()(double x) const noexcept
-    {
-        return gain() * x + bias();
-    }
-
-    double inv(double y) const noexcept
-    {
-        return (y - bias()) / gain();
-    }
+private:
+    size_t n;
+    T mean_x;
+    T mean_y;
+    T variance_x;
+    T variance_y;
+    T covariance;
 };
 
 /***********************************************************************************************************************
-*** StatisticsAccumulator -- rewindable one variable running average, standard deviation, and variance
+*** StatisticsAccumulator -- rewindable single variable running average and standard deviation
 ***********************************************************************************************************************/
 
-class StatisticsAccumulator final
+template <typename T = double> struct StatisticsAccumulator final
 {
-    size_t count;
-    double mean_x;
-    double variance_x;
-
-public:
-    StatisticsAccumulator() noexcept : count(0), mean_x(0), variance_x(0)
+    StatisticsAccumulator() noexcept : n(0), mean_x(0), variance_x(0)
     {
     }
 
-    StatisticsAccumulator(const StatisticsAccumulator& r) noexcept : count(r.count), mean_x(r.mean_x), variance_x(r.variance_x)
+    StatisticsAccumulator(const StatisticsAccumulator& r) noexcept : n(r.n), mean_x(r.mean_x), variance_x(r.variance_x)
     {
     }
 
     StatisticsAccumulator& operator=(const StatisticsAccumulator& r) noexcept
     {
-        count = r.count;
+        n = r.n;
         mean_x = r.mean_x;
         variance_x = r.variance_x;
         return *this;
@@ -127,63 +156,73 @@ public:
 
     StatisticsAccumulator& clear() noexcept
     {
-        count = 0;
+        n = 0;
         mean_x = 0;
         variance_x = 0;
         return *this;
     }
 
-    StatisticsAccumulator& insert(double x) noexcept
+    StatisticsAccumulator& insert(T const& x) noexcept
     {
-        double dx = x - mean_x;
-        ++count;
-        mean_x += dx / count;
-        variance_x += dx * (x - mean_x);
+        ++n;
+        auto dx = x - mean_x;
+        mean_x = mean_x + dx / n;
+        variance_x = variance_x + dx * (x - mean_x);
         return *this;
     }
 
-    StatisticsAccumulator& remove(double x) noexcept
+    StatisticsAccumulator& remove(T const& x) noexcept
     {
-        if (count > 1)
+        if (n > 1)
         {
-            double dx = x - mean_x;
-            --count;
-            mean_x -= dx / count;
-            variance_x -= dx * (x - mean_x);
+            --n;
+            auto dx = x - mean_x;
+            mean_x = mean_x - dx / n;
+            variance_x = variance_x - dx * (x - mean_x);
         }
         else clear();
         return *this;
     }
 
-    double average() const noexcept
+    T average() const noexcept
     {
         return mean_x;
     }
 
+    T stdev_p() const noexcept
+    {
+        return sqrt(variance_x / n);
+    }
+
+    T stdev_s() const noexcept
+    {
+        return sqrt(variance_x / (n - 1));
+    }
+
+    T sum() const noexcept
+    {
+        return mean_x * n;
+    }
+
+    T variance_p() const noexcept
+    {
+        return variance_x / n;
+    }
+
+    T variance_s() const noexcept
+    {
+        return variance_x / (n - 1);
+    }
+
     int samples() const noexcept
     {
-        return count;
+        return n;
     }
 
-    double stdev_p() const noexcept
-    {
-        return count > 0 && variance_x >= 0 ? std::sqrt(variance_x / count) : 0;
-    }
-
-    double stdev_s() const noexcept
-    {
-        return count > 1 && variance_x >= 0 ? std::sqrt(variance_x / (count - 1)) : 0;
-    }
-
-    double sum() const noexcept
-    {
-        return count * mean_x;
-    }
-
-    double variance() const noexcept
-    {
-        return count > 0 && variance_x >= 0 ? variance_x / count : 0;
-    }
+private:
+    size_t n;
+    T mean_x;
+    T variance_x;
 };
 
 //**********************************************************************************************************************
