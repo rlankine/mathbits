@@ -97,6 +97,11 @@ template <typename T> T abs(Vector<T> const& r)
 	return sqrt(r.x * r.x + r.y * r.y + r.z * r.z);
 }
 
+template <typename T> Vector<T> normalize(Vector<T> const& r)
+{
+	return r / abs(r);
+}
+
 template <typename T> std::ostream& operator<<(std::ostream& out, Vector<T> const& r)
 {
 	return out << r.x << "\t" << r.y << "\t" << r.z << "\t";
@@ -134,9 +139,23 @@ template<typename T> struct Quaternion final
 		return *this;
 	}
 
-	T scalar() const
+	Vector<T> operator()(Vector<T> const& r)
 	{
-		return w;
+		auto ww = w * w;
+		auto wx = w * x;
+		auto wy = w * y;
+		auto wz = w * z;
+		auto xx = x * x;
+		auto xy = x * y;
+		auto xz = x * z;
+		auto yy = y * y;
+		auto yz = y * z;
+		auto zz = z * z;
+
+		return Vector<T>(
+			r.x * (ww + xx - yy - zz) + 2 * (r.y * (xy - wz) + r.z * (xz + wy)),
+			r.y * (ww - xx + yy - zz) + 2 * (r.z * (yz - wx) + r.x * (xy + wz)),
+			r.z * (ww - xx - yy + zz) + 2 * (r.x * (xz - wy) + r.y * (yz + wx)));
 	}
 
 	Vector<T> vector() const
@@ -148,25 +167,6 @@ template<typename T> struct Quaternion final
 };
 
 //**********************************************************************************************************************
-
-template <typename T> Vector<T> operator*(Vector<T> const& r, Quaternion<T> const& s)
-{
-	auto ww = s.w * s.w;
-	auto wx = s.w * s.x;
-	auto wy = s.w * s.y;
-	auto wz = s.w * s.z;
-	auto xx = s.x * s.x;
-	auto xy = s.x * s.y;
-	auto xz = s.x * s.z;
-	auto yy = s.y * s.y;
-	auto yz = s.y * s.z;
-	auto zz = s.z * s.z;
-
-	return Vector<T>(
-		r.x * (ww + xx - yy - zz) + 2 * (r.y * (xy - wz) + r.z * (xz + wy)),
-		r.y * (ww - xx + yy - zz) + 2 * (r.z * (yz - wx) + r.x * (xy + wz)),
-		r.z * (ww - xx - yy + zz) + 2 * (r.x * (xz - wy) + r.y * (yz + wx)));
-}
 
 template <typename T> Quaternion<T> operator*(Quaternion<T> const& r, Quaternion<T> const& s)
 {
@@ -199,12 +199,12 @@ template <typename T> T abs(Quaternion<T> const& r)
 
 template <typename T> Quaternion<T> conjugate(Quaternion<T> const& r)
 {
-	return Quaternion<T>(r.scalar(), -r.vector());
+	return Quaternion<T>(r.w, -r.vector());
 }
 
 template <typename T> Quaternion<T> exp(Quaternion<T> const& r)
 {
-	return exp(r.scalar()) * Quaternion<T>(cos(abs(r.vector())), r.vector() / abs(r.vector()) * sin(abs(r.vector())));
+	return exp(r.w) * Quaternion<T>(cos(abs(r.vector())), normalize(r.vector()) * sin(abs(r.vector())));
 }
 
 template <typename T> Quaternion<T> inverse(Quaternion<T> const& r)
@@ -214,7 +214,7 @@ template <typename T> Quaternion<T> inverse(Quaternion<T> const& r)
 
 template <typename T> Quaternion<T> log(Quaternion<T> const& r)
 {
-	return Quaternion<T>(log(abs(r)), r.vector() / abs(r.vector()) * acos(r.scalar() / abs(r)));
+	return Quaternion<T>(log(abs(r)), r.vector() / abs(r.vector()) * acos(r.w / abs(r)));
 }
 
 template <typename T> Quaternion<T> normalize(Quaternion<T> const& r)
