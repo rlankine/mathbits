@@ -33,7 +33,12 @@ SOFTWARE.
 
 template <typename T> T CostW(T const& x)
 {
-	return (x * x - 1) * (x * x - 1) / (x * x + 1);  // Bimodal cost function (bottoms at x = 1 and at x = -1)
+	return (x * x - 1) * (x * x - 1) / (x * x + 1);  // Bimodal cost function (bottoms both at x = 1 and at x = -1 )
+}
+
+template <typename T> T InvAct(T const& x)
+{
+	return sqrt(x * x + 1) - sqrt(2) * x;  // Invertible activator ( InvAct(InvAct(x)) = x )
 }
 
 template <typename T> T Logistic(T const& x)
@@ -54,11 +59,6 @@ template <typename T> T Minimum(T const& x, T const& y)
 template <typename T> T ReLU(T const& x)
 {
 	return (x + abs(x)) / 2;
-}
-
-template <typename T> T RevAct(T const& x)
-{
-	return sqrt(x * x + 1) - sqrt(2) * x;  // Reversible activator: RevAct(RevAct(x)) = x
 }
 
 template <typename T> T SoftPlus(T const& x)
