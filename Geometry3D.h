@@ -28,7 +28,7 @@ SOFTWARE.
 #include <iostream>
 #include <type_traits>
 
-// https://users.aalto.fi/~ssarkka/pub/quat.pdf
+// Source of the formulas: https://users.aalto.fi/~ssarkka/pub/quat.pdf
 
 /***********************************************************************************************************************
 *** Vector -- position or translation in 3D space
@@ -62,34 +62,39 @@ template<typename T> struct Vector final
 
 //**********************************************************************************************************************
 
+template <typename T> Vector<T> operator+(Vector<T> const& r)
+{
+	return { +r.x, +r.y, +r.z };
+}
+
 template <typename T> Vector<T> operator-(Vector<T> const& r)
 {
-	return Vector<T>(-r.x, -r.y, -r.z);
+	return { -r.x, -r.y, -r.z };
 }
 
 template <typename T> Vector<T> operator+(Vector<T> const& r, Vector<T> const& s)
 {
-	return Vector<T>(r.x + s.x, r.y + s.y, r.z + s.z);
+	return { r.x + s.x, r.y + s.y, r.z + s.z };
 }
 
 template <typename T> Vector<T> operator-(Vector<T> const& r, Vector<T> const& s)
 {
-	return Vector<T>(r.x - s.x, r.y - s.y, r.z - s.z);
+	return { r.x - s.x, r.y - s.y, r.z - s.z };
 }
 
 template <typename T> Vector<T> operator*(T const& r, Vector<T> const& s)
 {
-	return Vector<T>(r * s.x, r * s.y, r * s.z);
+	return { r * s.x, r * s.y, r * s.z };
 }
 
 template <typename T> Vector<T> operator*(Vector<T> const& r, T const& s)
 {
-	return Vector<T>(r.x * s, r.y * s, r.z * s);
+	return { r.x * s, r.y * s, r.z * s };
 }
 
 template <typename T> Vector<T> operator/(Vector<T> const& r, T const& s)
 {
-	return Vector<T>(r.x / s, r.y / s, r.z / s);
+	return { r.x / s, r.y / s, r.z / s };
 }
 
 template <typename T> T abs(Vector<T> const& r)
@@ -152,15 +157,22 @@ template<typename T> struct Quaternion final
 		auto yz = y * z;
 		auto zz = z * z;
 
-		return Vector<T>(
+		return
+		{
 			r.x * (ww + xx - yy - zz) + 2 * (r.y * (xy - wz) + r.z * (xz + wy)),
 			r.y * (ww - xx + yy - zz) + 2 * (r.z * (yz - wx) + r.x * (xy + wz)),
-			r.z * (ww - xx - yy + zz) + 2 * (r.x * (xz - wy) + r.y * (yz + wx)));
+			r.z * (ww - xx - yy + zz) + 2 * (r.x * (xz - wy) + r.y * (yz + wx))
+		};
+	}
+
+	T scalar() const
+	{
+		return w;
 	}
 
 	Vector<T> vector() const
 	{
-		return Vector<T>(x, y, z);
+		return { x, y, z };
 	}
 
 	T w, x, y, z;
@@ -170,26 +182,28 @@ template<typename T> struct Quaternion final
 
 template <typename T> Quaternion<T> operator*(Quaternion<T> const& r, Quaternion<T> const& s)
 {
-	return Quaternion<T>(
+	return 
+	{
 		r.w * s.w - r.x * s.x - r.y * s.y - r.z * s.z,
 		r.w * s.x + r.x * s.w + r.y * s.z - r.z * s.y,
 		r.w * s.y + r.y * s.w + r.z * s.x - r.x * s.z,
-		r.w * s.z + r.z * s.w + r.x * s.y - r.y * s.x);
+		r.w * s.z + r.z * s.w + r.x * s.y - r.y * s.x
+	};
 }
 
 template <typename T> Quaternion<T> operator*(T const& r, Quaternion<T> const& s)
 {
-	return Quaternion<T>(r * s.w, r * s.x, r * s.y, r * s.z);
+	return { r * s.w, r * s.x, r * s.y, r * s.z };
 }
 
 template <typename T> Quaternion<T> operator*(Quaternion<T> const& r, T const& s)
 {
-	return Quaternion<T>(r.w * s, r.x * s, r.y * s, r.z * s);
+	return { r.w * s, r.x * s, r.y * s, r.z * s };
 }
 
 template <typename T> Quaternion<T> operator/(Quaternion<T> const& r, T const& s)
 {
-	return Quaternion<T>(r.w / s, r.x / s, r.y / s, r.z / s);
+	return { r.w / s, r.x / s, r.y / s, r.z / s };
 }
 
 template <typename T> T abs(Quaternion<T> const& r)
@@ -199,7 +213,7 @@ template <typename T> T abs(Quaternion<T> const& r)
 
 template <typename T> Quaternion<T> conjugate(Quaternion<T> const& r)
 {
-	return Quaternion<T>(r.w, -r.vector());
+	return { r.w, -r.x, -r.y, -r.z };
 }
 
 template <typename T> Quaternion<T> exp(Quaternion<T> const& r)
