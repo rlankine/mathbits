@@ -28,7 +28,7 @@ SOFTWARE.
 #include <iostream>
 #include <type_traits>
 
-// Source of the formulas: https://users.aalto.fi/~ssarkka/pub/quat.pdf
+// Source: https://users.aalto.fi/~ssarkka/pub/quat.pdf
 
 /***********************************************************************************************************************
 *** Vector -- position or translation in 3D space
@@ -184,10 +184,8 @@ template <typename T> Quaternion<T> operator*(Quaternion<T> const& r, Quaternion
 {
 	return 
 	{
-		r.w * s.w - r.x * s.x - r.y * s.y - r.z * s.z,
-		r.w * s.x + r.x * s.w + r.y * s.z - r.z * s.y,
-		r.w * s.y + r.y * s.w + r.z * s.x - r.x * s.z,
-		r.w * s.z + r.z * s.w + r.x * s.y - r.y * s.x
+		r.w * s.w - r.x * s.x - r.y * s.y - r.z * s.z, r.w * s.x + r.x * s.w + r.y * s.z - r.z * s.y,
+		r.w * s.y + r.y * s.w + r.z * s.x - r.x * s.z, r.w * s.z + r.z * s.w + r.x * s.y - r.y * s.x
 	};
 }
 
