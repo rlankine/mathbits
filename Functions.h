@@ -58,7 +58,7 @@ template <typename T> T Minimum(T const& x, T const& y)
 
 template <typename T> T ReLU(T const& x)
 {
-	return (x + abs(x)) / 2;
+	return Maximum(x, 0);
 }
 
 template <typename T> T Restrict(T const& x, T const& a, T const& b)
