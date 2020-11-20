@@ -30,7 +30,11 @@ SOFTWARE.
 
 //**********************************************************************************************************************
 
-inline double bernoulli(double x)
+static inline double square(double x) { return x * x; }
+
+//**********************************************************************************************************************
+
+static inline double bernoulli(double x)
 {
     assert(abs(x) <= log(2));
 
@@ -77,7 +81,7 @@ inline double Li2(double x)
     else
     {
         if (x == 0) return 0;
-        if (x < -1) return -Li2(1 / x) - PiPiDiv6 - log(-x) * log(-x) / 2;
+        if (x < -1) return -Li2(1 / x) - PiPiDiv6 - square(log(-x)) / 2;
         return bernoulli(-log1p(-x));
     }
 }

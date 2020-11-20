@@ -144,7 +144,7 @@ template<typename T> struct Quaternion final
 		return *this;
 	}
 
-	Vector<T> operator()(Vector<T> const& r)
+	Vector<T> operator()(Vector<T> const& r) const
 	{
 		auto ww = w * w;
 		auto wx = w * x;
@@ -216,7 +216,7 @@ template <typename T> Quaternion<T> conjugate(Quaternion<T> const& r)
 
 template <typename T> Quaternion<T> exp(Quaternion<T> const& r)
 {
-	return exp(r.w) * Quaternion<T>(cos(abs(r.vector())), normalize(r.vector()) * sin(abs(r.vector())));
+	return exp(r.scalar()) * Quaternion<T>(cos(abs(r.vector())), normalize(r.vector()) * sin(abs(r.vector())));
 }
 
 template <typename T> Quaternion<T> inverse(Quaternion<T> const& r)
@@ -226,7 +226,7 @@ template <typename T> Quaternion<T> inverse(Quaternion<T> const& r)
 
 template <typename T> Quaternion<T> log(Quaternion<T> const& r)
 {
-	return Quaternion<T>(log(abs(r)), r.vector() / abs(r.vector()) * acos(r.w / abs(r)));
+	return Quaternion<T>(log(abs(r)), r.vector() / abs(r.vector()) * acos(r.scalar() / abs(r)));
 }
 
 template <typename T> Quaternion<T> normalize(Quaternion<T> const& r)
