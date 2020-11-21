@@ -30,11 +30,12 @@ SOFTWARE.
 
 //**********************************************************************************************************************
 
-inline double sq(double d) { return d * d; }
+static inline double sq(double x) { return x * x; }
+static double const PiPiDiv6 = 1.64493406684822644e-00;
 
 //**********************************************************************************************************************
 
-inline double bernoulli(double x)
+static inline double bernoulli(double x)
 {
     assert(abs(x) <= log(2));
 
@@ -70,20 +71,11 @@ inline double bernoulli(double x)
 
 inline double Li2(double x)
 {
-    double const PiPiDiv6 = 1.64493406684822644e-00;
-
-    if (x > 0.5)
-    {
-        if (x > 1) return nan(__FUNCTION__);  // Reals only!
-        if (x == 1) return PiPiDiv6;
-        return -Li2(1 - x) + PiPiDiv6 - log(x) * log1p(-x);
-    }
-    else
-    {
-        if (x == 0) return 0;
-        if (x < -1) return -Li2(1 / x) - PiPiDiv6 - sq(log(-x)) / 2;
-        return bernoulli(-log1p(-x));
-    }
+    if (x < -1) return -Li2(1 / x) - PiPiDiv6 - sq(log(-x)) / 2;
+    if (x <= 0.5) return bernoulli(-log1p(-x));
+    if (x < 1) return -Li2(1 - x) + PiPiDiv6 - log(x) * log1p(-x);
+    if (x == 1) return PiPiDiv6;
+    return nan(__FUNCTION__);  // Reals only!
 }
 
 /***********************************************************************************************************************
@@ -92,7 +84,7 @@ inline double Li2(double x)
 
 inline double ISp(double x)
 {
-    if (x > 0) return x * x / 2 - ISp(-x) + 1.64493406684822644e-00;
+    if (x > 0) return x * x / 2 - ISp(-x) + PiPiDiv6;
     return -bernoulli(-log1p(exp(x)));
 }
 
