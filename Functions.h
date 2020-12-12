@@ -31,14 +31,14 @@ SOFTWARE.
 *** Template functions
 ***********************************************************************************************************************/
 
-template <typename T> T CostW(T const& x)
+template <typename T> T CostW(T const& x)  // Bimodal cost function (bottoms at x = 1 and at x = -1 )
 {
-	return (x * x - 1) * (x * x - 1) / (x * x + 1);  // Bimodal cost function (bottoms at x = 1 and at x = -1 )
+	return (x * x - 1) * (x * x - 1) / (x * x + 1);
 }
 
-template <typename T> T InvAct(T const& x)
+template <typename T> T InvAct(T const& x)  // Reversible activation function ( InvAct(InvAct(x)) = x )
 {
-	return sqrt(x * x + 1) - sqrt(2) * x;  // Invertible activator ( InvAct(InvAct(x)) = x )
+	return sqrt(x * x + 1) - sqrt(2) * x;
 }
 
 template <typename T> T Logistic(T const& x)

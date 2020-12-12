@@ -28,12 +28,16 @@ SOFTWARE.
 #include <assert.h>
 #include <cmath>
 
-//**********************************************************************************************************************
+/***********************************************************************************************************************
+*** Helper functions:
+***********************************************************************************************************************/
 
-static inline double sq(double x) { return x * x; }
 static double const PiPiDiv6 = 1.64493406684822644e-00;
 
-//**********************************************************************************************************************
+static inline double sq(double x)
+{
+    return x * x;
+}
 
 static inline double bernoulli(double x)
 {
@@ -71,9 +75,9 @@ static inline double bernoulli(double x)
 
 inline double Li2(double x)
 {
-    if (x < -1) return -Li2(1 / x) - PiPiDiv6 - sq(log(-x)) / 2;
+    if (x < -1) return -bernoulli(-log1p(-1 / x)) - PiPiDiv6 - sq(log(-x)) / 2;
     if (x <= 0.5) return bernoulli(-log1p(-x));
-    if (x < 1) return -Li2(1 - x) + PiPiDiv6 - log(x) * log1p(-x);
+    if (x < 1) return -bernoulli(-log(x)) + PiPiDiv6 - log(x) * log1p(-x);
     if (x == 1) return PiPiDiv6;
     return nan(__FUNCTION__);  // Reals only!
 }
@@ -82,10 +86,10 @@ inline double Li2(double x)
 *** Integral of SoftPlus
 ***********************************************************************************************************************/
 
-inline double ISp(double x)
+inline double Spp(double x)
 {
-    if (x > 0) return x * x / 2 - ISp(-x) + PiPiDiv6;
-    return -bernoulli(-log1p(exp(x)));
+    if (x <= 0) return -bernoulli(-log1p(exp(x)));
+    return bernoulli(-log1p(exp(-x))) + PiPiDiv6 + x * x / 2;
 }
 
 //**********************************************************************************************************************
