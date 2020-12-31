@@ -11,7 +11,7 @@ to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions :
 
-The above copyright noticeand this permission notice shall be included in all
+The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -95,7 +95,7 @@ template <typename T = double> struct RegressionAccumulator final
 
     T bias() const noexcept
     {
-        return mean_y - mean_x * covariance / variance_x;
+        return mean_y - mean_x * gain();
     }
 
     T correlation() const noexcept
@@ -108,14 +108,14 @@ template <typename T = double> struct RegressionAccumulator final
         return covariance / variance_x;
     }
 
-    T operator()(T const& x) const noexcept
+    T operator()(T const& x) const noexcept  // Get linearly correlated 'y' for a given 'x'
     {
-        return (x - mean_x) * covariance / variance_x + mean_y;
+        return (x - mean_x) * gain() + mean_y;
     }
 
-    T inv(T const& y) const noexcept
+    T inv(T const& y) const noexcept  // Get linearly correlated 'x' for a given 'y'
     {
-        return (y - mean_y) * variance_x / covariance + mean_x;
+        return (y - mean_y) / gain() + mean_x;
     }
 
     int samples() const noexcept
@@ -133,7 +133,7 @@ private:
 };
 
 /***********************************************************************************************************************
-*** StatisticsAccumulator -- rewindable single variable running average and standard deviation
+*** StatisticsAccumulator -- rewindable single variable windowed average and standard deviation
 ***********************************************************************************************************************/
 
 template <typename T = double> struct StatisticsAccumulator final
@@ -191,17 +191,17 @@ template <typename T = double> struct StatisticsAccumulator final
 
     T stdev_p() const noexcept
     {
-        return sqrt(variance_x / n);
+        return sqrt(variance_p());
     }
 
     T stdev_s() const noexcept
     {
-        return sqrt(variance_x / (n - 1));
+        return sqrt(variance_s());
     }
 
     T sum() const noexcept
     {
-        return mean_x * n;
+        return n * average();
     }
 
     T variance_p() const noexcept
