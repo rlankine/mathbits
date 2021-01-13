@@ -9,23 +9,11 @@
 using std::cout;
 using std::endl;
 
-int main()
+int main(int argc, char const* argv[]) try
 {
-    cout << std::setprecision(15);
+    cout << std::setprecision(18);
+    srand(time(nullptr));
 
-    for (int i = 0; i < 45; ++i)
-    {
-        double d = 1 - i/5.0;
-        cout << d << "\t";
-        cout << Li2(d) << "\t";
-        cout << endl;
-    }
-
-    return EXIT_SUCCESS;
-}
-
-int main0(int argc, char const* argv[]) try
-{
     Quaternion<double> q = { double(rand()), double(rand()), double(rand()), double(rand()) };
     q = normalize(q);
 

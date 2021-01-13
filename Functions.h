@@ -11,7 +11,7 @@ to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions :
 
-The above copyright noticeand this permission notice shall be included in all
+The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -31,14 +31,14 @@ SOFTWARE.
 *** Template functions
 ***********************************************************************************************************************/
 
-template <typename T> T CostW(T const& x)
+template <typename T> T CostW(T const& x)  // Bimodal cost function (bottoms at x = 1 and at x = -1 )
 {
-	return (x * x - 1) * (x * x - 1) / (x * x + 1);  // Bimodal cost function (bottoms at x = 1 and at x = -1 )
+	return (x * x - 1) * (x * x - 1) / (x * x + 1);
 }
 
-template <typename T> T InvAct(T const& x)
+template <typename T> T InvAct(T const& x)  // Reversible activation function ( InvAct(InvAct(x)) = x )
 {
-	return sqrt(x * x + 1) - sqrt(2) * x;  // Invertible activator ( InvAct(InvAct(x)) = x )
+	return sqrt(x * x + 1) - sqrt(2) * x;
 }
 
 template <typename T> T Logistic(T const& x)
