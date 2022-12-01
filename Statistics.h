@@ -2,10 +2,10 @@
 /*
 MIT License
 
-Copyright(c) 2020 Risto Lankinen
+Copyright(c) 2022 Risto Lankinen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this softwareand associated documentation files(the "Software"), to deal
+of this software and associated documentation files(the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 copies of the Software, and to permit persons to whom the Software is
@@ -110,12 +110,12 @@ template <typename T = double> struct RegressionAccumulator final
 
     T operator()(T const& x) const noexcept  // Get linearly correlated 'y' for a given 'x'
     {
-        return (x - mean_x) * gain() + mean_y;
+        return mean_y + (x - mean_x) * gain();
     }
 
     T inv(T const& y) const noexcept  // Get linearly correlated 'x' for a given 'y'
     {
-        return (y - mean_y) / gain() + mean_x;
+        return mean_x + (y - mean_y) / gain();
     }
 
     int samples() const noexcept
@@ -223,6 +223,59 @@ private:
     size_t n;
     T mean_x;
     T variance_x;
+};
+
+/***********************************************************************************************************************
+*** GeneralizedMean
+***********************************************************************************************************************/
+
+template <typename T = double> struct GeneralizedMean final
+{
+    GeneralizedMean(double d = 1) noexcept : exponent(d), count(0), accumulator(0)
+    {
+    }
+
+    GeneralizedMean(const GeneralizedMean& r) noexcept : exponent(r.d), count(r.count), accumulator(r.accumulator)
+    {
+    }
+
+    GeneralizedMean& operator=(const GeneralizedMean& r) noexcept
+    {
+        exponent = r.exponent;
+        count = r.count;
+        accumulator = r.accumulator;
+        return *this;
+    }
+
+    GeneralizedMean& reset(double d) noexcept
+    {
+        exponent = d;
+        count = 0;
+        accumulator = 0;
+        return *this;
+    }
+
+    GeneralizedMean& insert(T const& x) noexcept
+    {
+        accumulator = accumulator - (accumulator - (exponent ? pow(x, exponent) : log(x))) / ++count;
+        return *this;
+    }
+
+    template <size_t N> GeneralizedMean& insert(T const (&x)[N]) noexcept
+    {
+        for (size_t index = 0; index < N; ++index) insert(x[index]);
+        return *this;
+    }
+
+    T result() const noexcept
+    {
+        return exponent ? pow(accumulator, 1 / exponent) : exp(accumulator);
+    }
+
+private:
+    double exponent;
+    size_t count;
+    T accumulator;
 };
 
 //**********************************************************************************************************************
