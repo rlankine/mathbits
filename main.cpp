@@ -1,4 +1,5 @@
 
+#include "Complex.h"
 #include "Geometry3D.h"
 #include "MathBits.h"
 #include "Polylog2.h"
@@ -11,16 +12,7 @@ using std::endl;
 
 int main(int argc, char const* argv[]) try
 {
-    cout << std::setprecision(18);
-    srand(time(nullptr));
-
-    Quaternion<double> q = { double(rand()), double(rand()), double(rand()), double(rand()) };
-    q = normalize(q);
-
-    for (int i = 0; i < 5000; ++i)
-    {
-        cout << i << "\t" << pow(q, (i-2500.0) / 250.0) << endl;
-    }
+    Complex<double> a;
 
     return EXIT_SUCCESS;
 }

@@ -26,20 +26,74 @@ SOFTWARE.
 #pragma once
 
 /***********************************************************************************************************************
-*** Miscellaneous helper functions
+*** Complex
 ***********************************************************************************************************************/
 
-template <typename T, typename U> T& operator+=(T& r, U const& s) { return r = r + s; }
-template <typename T, typename U> T& operator-=(T& r, U const& s) { return r = r - s; }
-template <typename T, typename U> T& operator*=(T& r, U const& s) { return r = r * s; }
-template <typename T, typename U> T& operator/=(T& r, U const& s) { return r = r / s; }
+template<typename T> struct Complex final
+{
+	Complex() : x(T()), y(T())
+	{
+	}
+
+	template <typename U> Complex(Complex<U> const& r) : x(T(r.x)), y(T(r.y))
+	{
+	}
+
+	Complex(T const& x, T const& y) : x(x), y(y)
+	{
+	}
+
+	template <typename U> Complex& operator=(Complex<U> const& r)
+	{
+		x = T(r.x);
+		y = T(r.y);
+
+		return *this;
+	}
+
+	T x, y;
+};
 
 //**********************************************************************************************************************
 
-template <typename T> bool operator>(T const& r, T const& s) { return s < r; }
-template <typename T> bool operator<=(T const& r, T const& s) { return !(s < r); }
-template <typename T> bool operator>=(T const& r, T const& s) { return !(r < s); }
-template <typename T> bool operator==(T const& r, T const& s) { return !(r < s) && !(s < r); }
-template <typename T> bool operator!=(T const& r, T const& s) { return (r < s) || (s < r); }
+template <typename T> Complex<T> operator+(Complex<T> const& r)
+{
+	return { +r.x, +r.y };
+}
+
+template <typename T> Complex<T> operator-(Complex<T> const& r)
+{
+	return { -r.x, -r.y };
+}
+
+template <typename T> T abs(Complex<T> const& r)
+{
+	return sqrt(r.x * r.x + r.y * r.y);
+}
+
+template <typename T> Complex<T> exp(Complex<T> const& r)
+{
+	return { exp(x) * cos(y), exp(x) * sin(y) };
+}
+
+template <typename T> Complex<T> sin(Complex<T> const& r)
+{
+	return { sin(x) * cosh(y), cos(x) * sinh(y) };
+}
+
+template <typename T> Complex<T> cos(Complex<T> const& r)
+{
+	return { cos(x) * cosh(y), sin(x) * sinh(y) };
+}
+
+template <typename T> Complex<T> sinh(Complex<T> const& r)
+{
+	return { sinh(x) * cos(y), cosh(x) * sin(y) };
+}
+
+template <typename T> Complex<T> cosh(Complex<T> const& r)
+{
+	return { cosh(x) * cos(y), sinh(x) * sin(y) };
+}
 
 //**********************************************************************************************************************
