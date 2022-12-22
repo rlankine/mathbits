@@ -235,7 +235,7 @@ template <typename T = double> struct GeneralizedMean final
     {
     }
 
-    GeneralizedMean(const GeneralizedMean& r) noexcept : exponent(r.d), count(r.count), accumulator(r.accumulator)
+    GeneralizedMean(const GeneralizedMean& r) noexcept : exponent(r.exponent), count(r.count), accumulator(r.accumulator)
     {
     }
 
