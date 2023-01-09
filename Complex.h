@@ -31,69 +31,85 @@ SOFTWARE.
 
 template<typename T> struct Complex final
 {
-	Complex() : x(T()), y(T())
+	Complex() : re(T()), im(T())
 	{
 	}
 
-	template <typename U> Complex(Complex<U> const& r) : x(T(r.x)), y(T(r.y))
+	template <typename U> Complex(Complex<U> const& r) : re(T(r.re)), im(T(r.im))
 	{
 	}
 
-	Complex(T const& x, T const& y) : x(x), y(y)
+	Complex(T const& re, T const& im) : re(re), im(im)
 	{
 	}
 
 	template <typename U> Complex& operator=(Complex<U> const& r)
 	{
-		x = T(r.x);
-		y = T(r.y);
+		re = T(r.re);
+		im = T(r.im);
 
 		return *this;
 	}
 
-	T x, y;
+	T re;
+	T im;
 };
 
 //**********************************************************************************************************************
 
 template <typename T> Complex<T> operator+(Complex<T> const& r)
 {
-	return { +r.x, +r.y };
+	return { +r.re, +r.im };
 }
 
 template <typename T> Complex<T> operator-(Complex<T> const& r)
 {
-	return { -r.x, -r.y };
+	return { -r.re, -r.im };
+}
+
+template <typename T> Complex<T> operator+(Complex<T> const &r, Complex<T> const &s)
+{
+	return { r.re + s.re, r.im + s.im };
+}
+
+template <typename T> Complex<T> operator-(Complex<T> const &r, Complex<T> const &s)
+{
+	return { r.re - s.re, r.im - s.im };
+}
+
+template <typename T> Complex<T> operator*(Complex<T> const &r, Complex<T> const &s)
+{
+	return { r.re * s.re - r.im * s.im, r.re * s.im + r.im * s.re };
 }
 
 template <typename T> T abs(Complex<T> const& r)
 {
-	return sqrt(r.x * r.x + r.y * r.y);
+	return sqrt(r.re * r.re + r.im * r.im);
 }
 
 template <typename T> Complex<T> exp(Complex<T> const& r)
 {
-	return { exp(x) * cos(y), exp(x) * sin(y) };
+	return { exp(re) * cos(im), exp(re) * sin(im) };
 }
 
 template <typename T> Complex<T> sin(Complex<T> const& r)
 {
-	return { sin(x) * cosh(y), cos(x) * sinh(y) };
+	return { sin(re) * cosh(im), cos(re) * sinh(im) };
 }
 
 template <typename T> Complex<T> cos(Complex<T> const& r)
 {
-	return { cos(x) * cosh(y), sin(x) * sinh(y) };
+	return { cos(re) * cosh(im), sin(re) * sinh(im) };
 }
 
 template <typename T> Complex<T> sinh(Complex<T> const& r)
 {
-	return { sinh(x) * cos(y), cosh(x) * sin(y) };
+	return { sinh(re) * cos(im), cosh(re) * sin(im) };
 }
 
 template <typename T> Complex<T> cosh(Complex<T> const& r)
 {
-	return { cosh(x) * cos(y), sinh(x) * sin(y) };
+	return { cosh(re) * cos(im), sinh(re) * sin(im) };
 }
 
 //**********************************************************************************************************************
