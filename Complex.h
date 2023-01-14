@@ -89,27 +89,27 @@ template <typename T> T abs(Complex<T> const& r)
 
 template <typename T> Complex<T> exp(Complex<T> const& r)
 {
-	return { exp(re) * cos(im), exp(re) * sin(im) };
+	return { exp(r.re) * cos(r.im), exp(r.re) * sin(r.im) };
 }
 
 template <typename T> Complex<T> sin(Complex<T> const& r)
 {
-	return { sin(re) * cosh(im), cos(re) * sinh(im) };
+	return { sin(r.re) * cosh(r.im), cos(r.re) * sinh(r.im) };
 }
 
 template <typename T> Complex<T> cos(Complex<T> const& r)
 {
-	return { cos(re) * cosh(im), sin(re) * sinh(im) };
+	return { cos(r.re) * cosh(r.im), sin(r.re) * sinh(r.im) };
 }
 
 template <typename T> Complex<T> sinh(Complex<T> const& r)
 {
-	return { sinh(re) * cos(im), cosh(re) * sin(im) };
+	return { sinh(r.re) * cos(r.im), cosh(r.re) * sin(r.im) };
 }
 
 template <typename T> Complex<T> cosh(Complex<T> const& r)
 {
-	return { cosh(re) * cos(im), sinh(re) * sin(im) };
+	return { cosh(r.re) * cos(r.im), sinh(r.re) * sin(r.im) };
 }
 
 //**********************************************************************************************************************
